@@ -1,12 +1,12 @@
 package main
 
-import . "./vm"
-
 import (
 	"fmt"
-	"./binchunk"
-	"io/ioutil"
-	"os"
+	"gLua/state"
+
+	. "gLua/api"
+	"gLua/binchunk"
+	. "gLua/vm"
 )
 
 func printHeader(f *binchunk.Prototype) {
@@ -26,7 +26,7 @@ func printHeader(f *binchunk.Prototype) {
 		len(f.LocVars), len(f.Constants), len(f.Protos))
 }
 
-func printOperands(i Instruction)  {
+func printOperands(i Instruction) {
 	switch i.OpMode() {
 	case IABC:
 		a, b, c := i.ABC()
@@ -62,7 +62,7 @@ func printOperands(i Instruction)  {
 	}
 }
 
-func printCode(f *binchunk.Prototype)  {
+func printCode(f *binchunk.Prototype) {
 	for pc, c := range f.Code {
 		line := "-"
 		if len(f.LineInfo) > 0 {
@@ -75,7 +75,7 @@ func printCode(f *binchunk.Prototype)  {
 	}
 }
 
-func printDetail(f *binchunk.Prototype)  {
+func printDetail(f *binchunk.Prototype) {
 	fmt.Printf("constants (%d): \n", len(f.Constants))
 	for i, k := range f.Constants {
 		fmt.Printf("\t%d\t%s\n", i+1, constantToString(k))
@@ -95,12 +95,18 @@ func printDetail(f *binchunk.Prototype)  {
 
 func constantToString(k interface{}) string {
 	switch k.(type) {
-	case nil: return "nil"
-	case bool: return fmt.Sprintf("%t", k)
-	case float64: return fmt.Sprintf("%g", k)
-	case int64: return fmt.Sprintf("%d", k)
-	case string: return fmt.Sprintf("%q", k)
-	default: return "?"
+	case nil:
+		return "nil"
+	case bool:
+		return fmt.Sprintf("%t", k)
+	case float64:
+		return fmt.Sprintf("%g", k)
+	case int64:
+		return fmt.Sprintf("%d", k)
+	case string:
+		return fmt.Sprintf("%q", k)
+	default:
+		return "?"
 	}
 }
 
@@ -120,13 +126,55 @@ func list(f *binchunk.Prototype) {
 	}
 }
 
-func main() {
-	if len(os.Args) > 1 {
-		data, err := ioutil.ReadFile(os.Args[1])
-		if err != nil {
-			panic(err)
+func printStack(ls LuaState) {
+	top := ls.GetTop()
+	for i := 1; i <= top; i++ {
+		t := ls.Type(i)
+		switch t {
+		case LUA_TBOOLEAN:
+			fmt.Printf("[%t]", ls.ToBoolean(i))
+		case LUA_TNUMBER:
+			fmt.Printf("[%g]", ls.ToNumber(i))
+		case LUA_TSTRING:
+			fmt.Printf("[%q]", ls.ToString(i))
+		default:
+			fmt.Printf("[%s]", ls.TypeName(t))
 		}
-		proto := binchunk.Undump(data)
-		list(proto)
 	}
+	fmt.Println()
+}
+
+func main() {
+	// test binchunk
+	// fmt.Println("=========== test binchunk ===========")
+	// if len(os.Args) > 1 {
+	//	data, err := ioutil.ReadFile(os.Args[1])
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//	proto := binchunk.Undump(data)
+	//	list(proto)
+	// }
+
+	// test luaState
+	fmt.Println("\n=========== test luaState ===========")
+	ls := state.New()
+	ls.PushBoolean(true)
+	printStack(ls)
+	ls.PushInteger(10)
+	printStack(ls)
+	ls.PushNil()
+	printStack(ls)
+	ls.PushString("hello")
+	printStack(ls)
+	ls.PushValue(-4)
+	printStack(ls)
+	ls.Replace(3)
+	printStack(ls)
+	ls.SetTop(6)
+	printStack(ls)
+	ls.Remove(-3)
+	printStack(ls)
+	ls.SetTop(-5)
+	printStack(ls)
 }
