@@ -1,33 +1,42 @@
 package state
 
-import . "gLua/api"
+import (
+	. "gLua/api"
+	"gLua/number"
+)
 
 type luaValue interface{}
 
 func typeOf(val luaValue) LuaType {
 	switch val.(type) {
-	case nil: return LUA_TNIL
-	case bool: return LUA_TBOOLEAN
-	case int64: return LUA_TNUMBER
-	case float64: return LUA_TNUMBER
-	case string: return LUA_TSTRING
-	default: panic("todo!")
+	case nil:
+		return LUA_TNIL
+	case bool:
+		return LUA_TBOOLEAN
+	case int64:
+		return LUA_TNUMBER
+	case float64:
+		return LUA_TNUMBER
+	case string:
+		return LUA_TSTRING
+	default:
+		panic("todo!")
 	}
 }
 
 type luaStack struct {
 	slots []luaValue
-	top int
+	top   int
 }
 
-func (self *luaStack) check(n int)  {
+func (self *luaStack) check(n int) {
 	free := len(self.slots) - self.top
 	for i := free; i < n; i++ {
 		self.slots = append(self.slots, nil)
 	}
 }
 
-func (self *luaStack) push(val luaValue)  {
+func (self *luaStack) push(val luaValue) {
 	if self.top == len(self.slots) {
 		panic("stack overflow!")
 	}
@@ -65,7 +74,7 @@ func (self *luaStack) get(idx int) luaValue {
 	return nil
 }
 
-func (self *luaStack) set(idx int, val luaValue)  {
+func (self *luaStack) set(idx int, val luaValue) {
 	absIdx := self.absIndex(idx)
 	if self.isValid(absIdx) {
 		self.slots[absIdx-1] = val
@@ -77,6 +86,42 @@ func (self *luaStack) set(idx int, val luaValue)  {
 func newLuaStack(size int) *luaStack {
 	return &luaStack{
 		slots: make([]luaValue, size),
-		top: 0,
+		top:   0,
+	}
+}
+
+func convertToFloat(val luaValue) (float64, bool) {
+	switch x := val.(type) {
+	case float64:
+		return x, true
+	case int64:
+		return float64(x), true
+	case string:
+		return number.ParseFloat(x)
+	default:
+		return 0, false
+	}
+}
+
+func _stringToInteger(s string) (int64, bool) {
+	if i, ok := number.ParseInteger(s); ok {
+		return i, true
+	}
+	if f, ok := number.ParseFloat(s); ok {
+		return number.FloatToInteger(f)
+	}
+	return 0, false
+}
+
+func convertToInteger(val luaValue) (int64, bool) {
+	switch x := val.(type) {
+	case int64:
+		return x, true
+	case float64:
+		return number.FloatToInteger(x)
+	case string:
+		return _stringToInteger(x)
+	default:
+		return 0, false
 	}
 }
