@@ -3,7 +3,6 @@ package state
 import (
 	"gLua/number"
 	"math"
-	"fmt"
 )
 
 type luaTable struct {
@@ -72,13 +71,9 @@ func (self *luaTable) put(key, val luaValue) {
 		arrLen := int64(len(self.arr))
 		if idx <= arrLen {
 			self.arr[idx-1] = val
-			fmt.Println("xxxxx", key, val, arrLen, self.arr[idx-1])
-			
 			if idx == arrLen && val == nil {
 				self._shrinkArray()
 			}
-
-			fmt.Println("xxxxx2", key, val, arrLen, self.arr[idx-1])
 			return
 		}
 		if idx == arrLen+1 {

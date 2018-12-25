@@ -1,5 +1,4 @@
 local t = {"a", "b", "c"}
 t[2] = "B"
-local s = t[3]
--- t["foo"] = "Bar"
--- local s = t[3] .. t[2] .. t[1] .. t["foo"] .. #t
+t["foo"] = "Bar"
+local s = t[3] .. t[2] .. t[1] .. t["foo"] .. #t
