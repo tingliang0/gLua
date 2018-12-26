@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"gLua/state"
 	"io/ioutil"
 	"os"
 
 	. "gLua/api"
 	"gLua/binchunk"
+	"gLua/state"
 	. "gLua/vm"
 )
 
@@ -188,22 +188,22 @@ func printStack(ls LuaState) {
 // 	printStack(ls)
 // }
 
-func luaMain(proto *binchunk.Prototype) {
-	nRegs := int(proto.MaxStackSize)
-	ls := state.New(nRegs+8, proto)
-	ls.SetTop(nRegs)
-	for {
-		pc := ls.PC()
-		inst := Instruction(ls.Fetch())
-		if inst.Opcode() != OP_RETURN {
-			inst.Execute(ls)
-			fmt.Printf("[%02d] %s", pc+1, inst.OpName())
-			printStack(ls)
-		} else {
-			break
-		}
-	}
-}
+// func luaMain(proto *binchunk.Prototype) {
+// 	nRegs := int(proto.MaxStackSize)
+// 	ls := state.New(nRegs+8, proto)
+// 	ls.SetTop(nRegs)
+// 	for {
+// 		pc := ls.PC()
+// 		inst := Instruction(ls.Fetch())
+// 		if inst.Opcode() != OP_RETURN {
+// 			inst.Execute(ls)
+// 			fmt.Printf("[%02d] %s", pc+1, inst.OpName())
+// 			printStack(ls)
+// 		} else {
+// 			break
+// 		}
+// 	}
+// }
 
 func main() {
 	// test binchunk
@@ -213,7 +213,8 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		proto := binchunk.Undump(data)
-		luaMain(proto)
+		ls := state.New()
+		ls.Load(data, os.Args[1], "b")
+		ls.Call(0, 0)
 	}
 }

@@ -36,10 +36,27 @@ func setList(i Instruction, vm LuaVM) {
 	} else {
 		c = Instruction(vm.Fetch()).Ax()
 	}
+	bIsZero := b == 0
+	if bIsZero {
+		b = int(vm.ToInteger(-1)) - a - 1
+		vm.Pop(1)
+	}
+	vm.CheckStack(1)
+
 	idx := int64(c * LFIELDS_PER_FLUSH)
 	for j := 1; j <= b; j++ {
 		idx++
 		vm.PushValue(a + j)
 		vm.SetI(a, idx)
+	}
+
+	if bIsZero {
+		for j := vm.RegisterCount(); j <= vm.GetTop(); j++ {
+			idx++
+			vm.PushValue(j)
+			vm.SetI(a, idx)
+		}
+		// clear stack
+		vm.SetTop(vm.RegisterCount())
 	}
 }

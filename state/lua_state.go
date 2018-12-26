@@ -1,18 +1,23 @@
 package state
 
-import "gLua/binchunk"
-
 // 相当于CPU
 type luaState struct {
-	stack *luaStack           // register
-	proto *binchunk.Prototype // code & const
-	pc    int                 // pc register
+	stack *luaStack // register
 }
 
-func New(stackSize int, proto *binchunk.Prototype) *luaState {
+func New() *luaState {
 	return &luaState{
-		stack: newLuaStack(stackSize),
-		proto: proto,
-		pc:    0,
+		stack: newLuaStack(20),
 	}
+}
+
+func (self *luaState) pushLuaStack(stack *luaStack) {
+	stack.prev = self.stack
+	self.stack = stack
+}
+
+func (self *luaState) popLuaStack() {
+	stack := self.stack
+	self.stack = stack.prev
+	stack.prev = nil
 }
