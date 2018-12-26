@@ -1,5 +1,7 @@
 package state
 
+import . "gLua/api"
+
 type luaStack struct {
 	slots   []luaValue
 	top     int
@@ -7,6 +9,7 @@ type luaStack struct {
 	closure *closure
 	varargs []luaValue
 	pc      int
+	state   *luaState
 }
 
 func (self *luaStack) check(n int) {
@@ -35,6 +38,10 @@ func (self *luaStack) pop() luaValue {
 }
 
 func (self *luaStack) absIndex(idx int) int {
+	if idx <= LUA_REGISTERYINDEX {
+		return idx
+	}
+
 	if idx >= 0 {
 		return idx
 	}
@@ -42,11 +49,19 @@ func (self *luaStack) absIndex(idx int) int {
 }
 
 func (self *luaStack) isValid(idx int) bool {
+	if idx == LUA_REGISTERYINDEX {
+		return true
+	}
+
 	absIdx := self.absIndex(idx)
 	return absIdx > 0 && absIdx <= self.top
 }
 
 func (self *luaStack) get(idx int) luaValue {
+	if idx == LUA_REGISTERYINDEX {
+		return self.state.registry
+	}
+
 	absIdx := self.absIndex(idx)
 	if self.isValid(absIdx) {
 		return self.slots[absIdx-1]
@@ -55,6 +70,11 @@ func (self *luaStack) get(idx int) luaValue {
 }
 
 func (self *luaStack) set(idx int, val luaValue) {
+	if idx == LUA_REGISTERYINDEX {
+		self.state.registry = val.(*luaTable)
+		return
+	}
+
 	absIdx := self.absIndex(idx)
 	if self.isValid(absIdx) {
 		self.slots[absIdx-1] = val
@@ -85,9 +105,10 @@ func (self *luaStack) pushN(vals []luaValue, n int) {
 	}
 }
 
-func newLuaStack(size int) *luaStack {
+func newLuaStack(size int, state *luaState) *luaStack {
 	return &luaStack{
 		slots: make([]luaValue, size),
 		top:   0,
+		state: state,
 	}
 }

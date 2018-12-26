@@ -38,3 +38,8 @@ const (
 	LUA_OPLT        // <
 	LUA_OPLE        // <=
 )
+
+const LUA_MINSTACK = 20
+const LUAI_MAXSTACK = 1000000
+const LUA_REGISTERYINDEX = -LUAI_MAXSTACK - 1000
+const LUA_RIDX_GLOBALS int64 = 2

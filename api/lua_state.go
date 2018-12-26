@@ -4,6 +4,8 @@ type LuaType = int
 type ArithOp = int
 type CompareOp = int
 
+type GoFunction func(LuaState) int
+
 type LuaState interface {
 	// basic stack manipulation
 	GetTop() int
@@ -57,4 +59,13 @@ type LuaState interface {
 	// closure
 	Load(chunk []byte, chunkName, mode string) int
 	Call(nArgs, nResults int)
+	// go function
+	PushGoFunction(f GoFunction)
+	IsGoFunction(idx int) bool
+	ToGoFunction(idx int) GoFunction
+	// global env
+	PushGlobalTable()
+	GetGlobal(name string) LuaType
+	SetGlobal(name string)
+	Register(name string, f GoFunction)
 }
