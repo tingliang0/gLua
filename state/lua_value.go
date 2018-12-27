@@ -1,6 +1,7 @@
 package state
 
 import (
+	"fmt"
 	. "gLua/api"
 	"gLua/number"
 )
@@ -62,4 +63,47 @@ func convertToInteger(val luaValue) (int64, bool) {
 	default:
 		return 0, false
 	}
+}
+
+func setMetatable(val luaValue, mt *luaTable, ls *luaState) {
+	if t, ok := val.(*luaTable); ok {
+		t.metaTable = mt
+		return
+	}
+	key := fmt.Sprintf("_MT%d", typeOf(val))
+	ls.registry.put(key, mt)
+}
+
+func getMetatable(val luaValue, ls *luaState) *luaTable {
+	if t, ok := val.(*luaTable); ok {
+		return t.metaTable
+	}
+	key := fmt.Sprintf("_MT%d", typeOf(val))
+	if mt := ls.registry.get(key); mt != nil {
+		return mt.(*luaTable)
+	}
+	return nil
+}
+
+func getMetafield(val luaValue, fieldName string, ls *luaState) luaValue {
+	if mt := getMetatable(val, ls); mt != nil {
+		return mt.get(fieldName)
+	}
+	return nil
+}
+
+func callMetamethod(a, b luaValue, mmName string, ls *luaState) (luaValue, bool) {
+	var mm luaValue
+	if mm = getMetafield(a, mmName, ls); mm == nil {
+		if mm = getMetafield(b, mmName, ls); mm == nil {
+			return nil, false
+		}
+	}
+
+	ls.stack.check(4)
+	ls.stack.push(mm)
+	ls.stack.push(a)
+	ls.stack.push(b)
+	ls.Call(2, 1)
+	return ls.stack.pop(), true
 }

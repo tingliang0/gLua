@@ -70,6 +70,15 @@ type LuaState interface {
 	Register(name string, f GoFunction)
 	// upvalue
 	PushGoClosure(f GoFunction, n int)
+	// metatable
+	GetMetatable(idx int) bool
+	SetMetatable(idx int)
+	RawLen(idx int)
+	RawEqual(idx1, idx2 int) bool
+	RawGet(idx int) LuaType
+	RawSet(idx int)
+	RawGetI(idx int, i int64) LuaType
+	RawSetI(idx int, i int64)
 }
 
 func LuaUpvalueIndex(i int) int {
