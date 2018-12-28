@@ -13,14 +13,14 @@ func (self *luaState) Len(idx int) {
 	}
 }
 
-func (self *luaState) RawLen(idx int) {
+func (self *luaState) RawLen(idx int) uint {
 	val := self.stack.get(idx)
 	if s, ok := val.(string); ok {
-		self.stack.push(int64(len(s)))
+		return uint(len(s))
 	} else if t, ok := val.(*luaTable); ok {
-		self.stack.push(int64(t.len()))
+		return uint(t.len())
 	} else {
-		panic("length error!")
+		return 0
 	}
 }
 

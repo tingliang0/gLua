@@ -73,7 +73,7 @@ type LuaState interface {
 	// metatable
 	GetMetatable(idx int) bool
 	SetMetatable(idx int)
-	RawLen(idx int)
+	RawLen(idx int) uint
 	RawEqual(idx1, idx2 int) bool
 	RawGet(idx int) LuaType
 	RawSet(idx int)

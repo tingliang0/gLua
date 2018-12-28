@@ -14,13 +14,10 @@ func (self *luaState) NewTable() {
 func (self *luaState) getTable(t, k luaValue, raw bool) LuaType {
 	if tbl, ok := t.(*luaTable); ok {
 		v := tbl.get(k)
-		if raw || v != nil || tbl.hasMetafield("__index") {
+		if raw || v != nil || !tbl.hasMetafield("__index") {
 			self.stack.push(v)
 			return typeOf(v)
 		}
-
-		self.stack.push(v)
-		return typeOf(v)
 	}
 
 	if !raw {
