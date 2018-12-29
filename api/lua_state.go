@@ -79,6 +79,8 @@ type LuaState interface {
 	RawSet(idx int)
 	RawGetI(idx int, i int64) LuaType
 	RawSetI(idx int, i int64)
+	// iter
+	Next(idx int) bool
 }
 
 func LuaUpvalueIndex(i int) int {
