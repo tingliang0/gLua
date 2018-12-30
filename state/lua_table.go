@@ -108,7 +108,6 @@ func (self *luaTable) hasMetafield(fieldName string) bool {
 func (self *luaTable) nextKey(key luaValue) luaValue {
 	if self.keys == nil || key == nil {
 		self.initKeys()
-		self.changed = false
 	}
 
 	return self.keys[key]
