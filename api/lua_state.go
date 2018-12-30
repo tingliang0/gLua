@@ -81,6 +81,9 @@ type LuaState interface {
 	RawSetI(idx int, i int64)
 	// iter
 	Next(idx int) bool
+	// error
+	Error() int
+	PCall(nArgs, nResults, msgh int) int
 }
 
 func LuaUpvalueIndex(i int) int {

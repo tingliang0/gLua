@@ -98,3 +98,21 @@ func (self *luaState) runLuaClosure() {
 		}
 	}
 }
+
+func (self *luaState) PCall(nArgs, nResults, msgh int) (status int) {
+	caller := self.stack
+	status = LUA_ERRRUN
+
+	defer func() {
+		if err := recover(); err != nil {
+			for self.stack != caller {
+				self.popLuaStack()
+			}
+			self.stack.push(err)
+		}
+	}()
+
+	self.Call(nArgs, nResults)
+	status = LUA_OK
+	return
+}
