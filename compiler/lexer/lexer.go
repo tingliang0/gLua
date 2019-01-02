@@ -11,15 +11,31 @@ import (
 var reOpeningLongBracket = regexp.MustCompile(`^\[=*\[`)
 var reNewline = regexp.MustCompile("\r\n|\n\r|\n|\r")
 var reShortStr = regexp.MustCompile(`(?s)(^'(\\\\|\\'|\\\n|\\z\s*|[^'\n])*')|(^"(\\\\|\\"|\\\n|\\z\s*|[^"\n])*")`)
+var reDecEscapeSeq = regexp.MustCompile(`^\\[0-9]{1,3}`)
+var reHexEscapeSeq = regexp.MustCompile(`^\\x[0-9a-fA-F]{2}`)
+var reUnicodeEscapeSeq = regexp.MustCompile(`^\\u\{[0-9a-fA-F]+\}`)
+var reNumber = regexp.MustCompile(`^0[xX][0-9a-fA-F]*(\.[0-9a-fA-F]*)?([pP][+\-]?[0-9]+)?|^[0-9]*(\.[0-9]*)?([eE][+\-]?[0-9]+)?`)
+var reIdentifier = regexp.MustCompile(`^[_\d\w]+`)
 
 type Lexer struct {
-	chunk     string // source code
-	chunkName string // source code name
-	line      int    // current line
+	chunk         string // source code
+	chunkName     string // source code name
+	line          int    // current line
+	nextToken     string
+	nextTokenKind int
+	nextTokenLine int
 }
 
 func NewLexer(chunk, chunkName string) *Lexer {
-	return &Lexer{chunk, chunkName, 1}
+	return &Lexer{chunk, chunkName, 1, "", 0, 0}
+}
+
+func isDigit(c byte) bool {
+	return c >= '0' && c <= '9'
+}
+
+func isLatter(c byte) bool {
+	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z'
 }
 
 func isWhiteSpace(c byte) bool {
@@ -35,6 +51,15 @@ func isNewLine(c byte) bool {
 }
 
 func (self *Lexer) NextToken() (line, kind int, token string) {
+	if self.nextTokenLine > 0 {
+		line = self.nextTokenLine
+		kind = self.nextTokenKind
+		token = self.nextToken
+		self.line = self.nextTokenLine
+		self.nextTokenLine = 0
+		return
+	}
+
 	self.skipWhiteSpaces()
 	if len(self.chunk) == 0 {
 		return self.line, TOKEN_EOF, "EOF"
@@ -160,6 +185,23 @@ func (self *Lexer) NextToken() (line, kind int, token string) {
 	case '\'', '"':
 		return self.line, TOKEN_STRING, self.scanShortString()
 	}
+
+	c := self.chunk[0]
+	if c == '.' || isDigit(c) {
+		token := self.scanNumber()
+		return self.line, TOKEN_NUMBER, token
+	}
+
+	if c == '_' || isLatter(c) {
+		token := self.scanIdentifier()
+		if kind, found := keywords[token]; found {
+			return line, kind, token // keyword
+		} else {
+			return line, TOKEN_IDENTIFIER, token
+		}
+	}
+	self.error("unexpected symbol near %q", c)
+	return
 }
 
 func (self *Lexer) skipComment() {
@@ -236,6 +278,22 @@ func (self *Lexer) scanShortString() string {
 	return ""
 }
 
+func (self *Lexer) scanNumber() string {
+	return self.scan(reNumber)
+}
+
+func (self *Lexer) scanIdentifier() string {
+	return self.scan(reIdentifier)
+}
+
+func (self *Lexer) scan(re *regexp.Regexp) string {
+	if token := re.FindString(self.chunk); token != "" {
+		self.next(len(token))
+		return token
+	}
+	panic("unreachable!")
+}
+
 func (self *Lexer) error(f string, a ...interface{}) {
 	err := fmt.Sprintf(f, a...)
 	err = fmt.Sprintf("%s:%d: %s", self.chunkName, self.line, err)
@@ -304,8 +362,60 @@ func (self *Lexer) escape(str string) string {
 				}
 				self.error("decimal escape too large near '%s'", found)
 			}
-		case 'x':
+		case 'x': // \xXX
+			if found := reHexEscapeSeq.FindString(str); found != "" {
+				d, _ := strconv.ParseInt(found[2:], 16, 32)
+				buf.WriteByte(byte(d))
+				str = str[len(found):]
+				continue
+			}
+		case 'u': // \u{XXX}
+			if found := reUnicodeEscapeSeq.FindString(str); found != "" {
+				d, err := strconv.ParseInt(found[3:len(found)-1], 16, 32)
+				if err == nil && d <= 0x10FFFF {
+					buf.WriteRune(rune(d))
+					str = str[len(found):]
+					continue
+				}
+				self.error("UTF-8 value too large near '%s'", found)
+			}
+		case 'z':
+			str = str[2:]
+			for len(str) > 0 && isWhiteSpace(str[0]) {
+				str = str[1:]
+			}
+			continue
 		}
+		self.error("invalid escape sequence near '\\%c'", str[1])
 	}
+	return buf.String()
+}
 
+func (self *Lexer) LookAhead() int {
+	if self.nextTokenLine > 0 {
+		return self.nextTokenKind
+	}
+	curLine := self.line
+	line, kind, token := self.NextToken()
+	self.line = curLine
+	self.nextTokenLine = line
+	self.nextTokenKind = kind
+	self.nextToken = token
+	return kind
+}
+
+func (self *Lexer) NextTokenOfKind(kind int) (line int, token string) {
+	line, _kind, token := self.NextToken()
+	if kind != _kind {
+		self.error("syntax error near '%s'", token)
+	}
+	return line, token
+}
+
+func (self *Lexer) NextIdentifier() (line int, token string) {
+	return self.NextTokenOfKind(TOKEN_IDENTIFIER)
+}
+
+func (self *Lexer) Line() int {
+	return self.line
 }

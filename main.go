@@ -7,6 +7,7 @@ import (
 
 	. "gLua/api"
 	"gLua/binchunk"
+	. "gLua/compiler/lexer"
 	"gLua/state"
 	. "gLua/vm"
 )
@@ -281,22 +282,59 @@ func pCall(ls LuaState) int {
 	return ls.GetTop()
 }
 
+func testVM(data []byte) {
+	ls := state.New()
+	ls.Register("print", print)
+	ls.Register("getmetatable", getMetatable)
+	ls.Register("setmetatable", setMetatable)
+	ls.Register("next", next)
+	ls.Register("pairs", pairs)
+	ls.Register("ipairs", iPairs)
+	ls.Register("error", error)
+	ls.Register("pcall", pCall)
+	ls.Load(data, os.Args[1], "b")
+	ls.Call(0, 0)
+}
+
+func testLexer(chunk, chunkName string) {
+	lexer := NewLexer(chunk, chunkName)
+	for {
+		line, kind, token := lexer.NextToken()
+		fmt.Printf("[%2d] [%-10s] %s\n", line, kindToCategory(kind), token)
+		if kind == TOKEN_EOF {
+			break
+		}
+	}
+}
+
+func kindToCategory(kind int) string {
+	switch {
+	case kind < TOKEN_SEP_SEMI:
+		return "other"
+	case kind <= TOKEN_SEP_RCURLY:
+		return "separator"
+	case kind <= TOKEN_OP_NOT:
+		return "operator"
+	case kind <= TOKEN_KW_WHILE:
+		return "keyword"
+	case kind == TOKEN_IDENTIFIER:
+		return "identifier"
+	case kind == TOKEN_NUMBER:
+		return "number"
+	case kind == TOKEN_STRING:
+		return "string"
+	default:
+		return "other"
+	}
+}
+
 func main() {
 	if len(os.Args) > 1 {
 		data, err := ioutil.ReadFile(os.Args[1])
 		if err != nil {
 			panic(err)
 		}
-		ls := state.New()
-		ls.Register("print", print)
-		ls.Register("getmetatable", getMetatable)
-		ls.Register("setmetatable", setMetatable)
-		ls.Register("next", next)
-		ls.Register("pairs", pairs)
-		ls.Register("ipairs", iPairs)
-		ls.Register("error", error)
-		ls.Register("pcall", pCall)
-		ls.Load(data, os.Args[1], "b")
-		ls.Call(0, 0)
+		// testVM(data)
+		testLexer(string(data), os.Args[1])
 	}
 }
