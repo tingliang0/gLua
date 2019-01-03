@@ -4,7 +4,7 @@ type Stat interface {
 }
 
 // ;
-type Empty struct {
+type EmptyStat struct {
 }
 
 // break

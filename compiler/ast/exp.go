@@ -32,7 +32,7 @@ type IntegerExp struct {
 // float
 type FloatExp struct {
 	Line int
-	Val  int64
+	Val  float64
 }
 
 // string

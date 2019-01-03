@@ -42,7 +42,7 @@ const (
 	TOKEN_KW_BREAK                     // break
 	TOKEN_KW_DO                        // do
 	TOKEN_KW_ELSE                      // else
-	TOKEN_KW_ELSELF                    // elseif
+	TOKEN_KW_ELSEIF                    // elseif
 	TOKEN_KW_END                       // end
 	TOKEN_KW_FALSE                     // false
 	TOKEN_KW_FOR                       // for
@@ -61,7 +61,7 @@ const (
 	TOKEN_IDENTIFIER                   // indentifier
 	TOKEN_NUMBER                       // number
 	TOKEN_STRING                       // string
-	TOKEN_OP_UNN      = TOKEN_OP_MINUS // unary minus
+	TOKEN_OP_UNM      = TOKEN_OP_MINUS // unary minus
 	TOKEN_OP_SUB      = TOKEN_OP_MINUS
 	TOKEN_OP_BNOT     = TOKEN_OP_WAVE
 	TOKEN_OP_BXOR     = TOKEN_OP_WAVE
@@ -72,7 +72,7 @@ var keywords = map[string]int{
 	"break":    TOKEN_KW_BREAK,
 	"do":       TOKEN_KW_DO,
 	"else":     TOKEN_KW_ELSE,
-	"elseif":   TOKEN_KW_ELSELF,
+	"elseif":   TOKEN_KW_ELSEIF,
 	"end":      TOKEN_KW_END,
 	"false":    TOKEN_KW_FALSE,
 	"for":      TOKEN_KW_FOR,

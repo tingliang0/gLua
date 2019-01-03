@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -8,6 +9,7 @@ import (
 	. "gLua/api"
 	"gLua/binchunk"
 	. "gLua/compiler/lexer"
+	"gLua/compiler/parser"
 	"gLua/state"
 	. "gLua/vm"
 )
@@ -328,6 +330,15 @@ func kindToCategory(kind int) string {
 	}
 }
 
+func testParser(chunk, chunkName string) {
+	ast := parser.Parse(chunk, chunkName)
+	b, err := json.Marshal(ast)
+	if err != nil {
+		panic(err)
+	}
+	println(string(b))
+}
+
 func main() {
 	if len(os.Args) > 1 {
 		data, err := ioutil.ReadFile(os.Args[1])
@@ -335,6 +346,7 @@ func main() {
 			panic(err)
 		}
 		// testVM(data)
-		testLexer(string(data), os.Args[1])
+		// testLexer(string(data), os.Args[1])
+		testParser(string(data), os.Args[1])
 	}
 }

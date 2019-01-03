@@ -407,7 +407,7 @@ func (self *Lexer) LookAhead() int {
 func (self *Lexer) NextTokenOfKind(kind int) (line int, token string) {
 	line, _kind, token := self.NextToken()
 	if kind != _kind {
-		self.error("syntax error near '%s'", token)
+		self.error("syntax error near '%s' kind %d kin1 %d", token, kind, _kind)
 	}
 	return line, token
 }
