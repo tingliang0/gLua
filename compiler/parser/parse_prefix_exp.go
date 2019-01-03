@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	. "gLua/compiler/ast"
 	. "gLua/compiler/lexer"
 )
@@ -33,10 +32,8 @@ func _finishPrefixExp(lexer *Lexer, exp Exp) Exp {
 			keyExp := &StringExp{line, name}
 			exp = &TableAccessExp{line, exp, keyExp}
 		case TOKEN_SEP_COLON, TOKEN_SEP_LPAREN, TOKEN_SEP_LCURLY, TOKEN_STRING:
-			fmt.Println("xxxxxxxxxxxxxxxx")
 			exp = _finishFuncCallExp(lexer, exp)
 		default:
-			fmt.Println("yyyyyyyyyyyyyyyyy")
 			return exp
 		}
 	}

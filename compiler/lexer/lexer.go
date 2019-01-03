@@ -195,9 +195,9 @@ func (self *Lexer) NextToken() (line, kind int, token string) {
 	if c == '_' || isLatter(c) {
 		token := self.scanIdentifier()
 		if kind, found := keywords[token]; found {
-			return line, kind, token // keyword
+			return self.line, kind, token // keyword
 		} else {
-			return line, TOKEN_IDENTIFIER, token
+			return self.line, TOKEN_IDENTIFIER, token
 		}
 	}
 	self.error("unexpected symbol near %q", c)

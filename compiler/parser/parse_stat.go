@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	. "gLua/compiler/ast"
 	. "gLua/compiler/lexer"
 )
@@ -204,10 +203,8 @@ func _finishLocalVarDeclStat(lexer *Lexer) *LocalVarDeclStat {
 func parseAssignOrFuncCallStat(lexer *Lexer) Stat {
 	prefixExp := parsePrefixExp(lexer)
 	if fc, ok := prefixExp.(*FuncCallExp); ok {
-		fmt.Println("1111111111111111")
 		return fc
 	} else {
-		fmt.Println("2222222222222222")
 		return parseAssignStat(lexer, prefixExp)
 	}
 }
