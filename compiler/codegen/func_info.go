@@ -219,3 +219,32 @@ func (self *funcInfo) fixSbx(pc, sBx int) {
 func (self *funcInfo) emitReturn(a, n int) {
 	self.emitABC(OP_RETURN, a, n+1, 0)
 }
+
+func (self *funcInfo) closeOpenUpvals() {
+	a := self.getJmpArgA()
+	if a > 0 {
+		self.emitJmp(a, 0)
+	}
+}
+
+func (self *funcInfo) getJmpArgA() int {
+	hasCapturedLocVars := false
+	minSlotOfLocVars := self.maxRegs
+	for _, locVar := range self.locNames {
+		if locVar.scopeLv == self.scopeLv {
+			for v := locVar; v != nil && v.scopeLv == self.scopeLv; v = v.prev {
+				if v.captured {
+					hasCapturedLocVars = true
+				}
+				if v.slot < minSlotOfLocVars && v.name[0] != '(' {
+					minSlotOfLocVars = v.slot
+				}
+			}
+		}
+	}
+	if hasCapturedLocVars {
+		return minSlotOfLocVars + 1
+	} else {
+		return 0
+	}
+}
