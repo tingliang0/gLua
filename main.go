@@ -347,6 +347,19 @@ func main() {
 		}
 		// testVM(data)
 		// testLexer(string(data), os.Args[1])
-		testParser(string(data), os.Args[1])
+		// testParser(string(data), os.Args[1])
+
+		ls := state.New()
+		ls.Register("print", print)
+		ls.Register("getmetatable", getMetatable)
+		ls.Register("setmetatable", setMetatable)
+		ls.Register("next", next)
+		ls.Register("pairs", pairs)
+		ls.Register("ipairs", iPairs)
+		ls.Register("error", error)
+		ls.Register("pcall", pCall)
+		ls.Load(data, os.Args[1], "bt")
+		ls.Call(0, 0)
+
 	}
 }

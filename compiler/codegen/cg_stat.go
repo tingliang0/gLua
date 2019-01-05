@@ -111,7 +111,7 @@ func cgIfStat(fi *funcInfo, node *IfStat) {
 	}
 
 	for _, pc := range pcJmpToEnds {
-		fi.fixSbx(pc, fi.pc(), -pc)
+		fi.fixSbx(pc, fi.pc()-pc)
 	}
 }
 
@@ -152,6 +152,7 @@ func cgForInStat(fi *funcInfo, node *ForInStat) {
 }
 
 func cgLocalVarDeclStat(fi *funcInfo, node *LocalVarDeclStat) {
+	exps := removeTailNils(node.ExpList)
 	nExps := len(exps)
 	nNames := len(node.NameList)
 	oldRegs := fi.usedRegs
@@ -196,7 +197,8 @@ func cgLocalVarDeclStat(fi *funcInfo, node *LocalVarDeclStat) {
 }
 
 func cgAssignStat(fi *funcInfo, node *AssignStat) {
-	nExps := len(node.Exps)
+	exps := removeTailNils(node.ExpList)
+	nExps := len(exps)
 	nVars := len(node.VarList)
 	oldRegs := fi.usedRegs
 	tRegs := make([]int, nVars)
