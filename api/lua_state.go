@@ -7,6 +7,11 @@ type CompareOp = int
 type GoFunction func(LuaState) int
 
 type LuaState interface {
+	BasicAPI
+	AuxLib
+}
+
+type BasicAPI interface {
 	// basic stack manipulation
 	GetTop() int
 	AbsIndex(idx int) int
@@ -84,6 +89,7 @@ type LuaState interface {
 	// error
 	Error() int
 	PCall(nArgs, nResults, msgh int) int
+	PushFString(fmtStr string, a ...interface{})
 }
 
 func LuaUpvalueIndex(i int) int {
