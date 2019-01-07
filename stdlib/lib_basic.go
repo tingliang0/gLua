@@ -92,7 +92,7 @@ func baseSelect(ls LuaState) int {
 		i := ls.CheckInteger(1)
 		if i < 0 {
 			i = n + i
-		} else {
+		} else if i > n {
 			i = n
 		}
 		ls.ArgCheck(1 <= i, 1, "index out of range")

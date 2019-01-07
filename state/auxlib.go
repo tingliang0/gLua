@@ -173,7 +173,13 @@ func (self *luaState) tagError(arg int, tag LuaType) {
 
 func (self *luaState) OpenLibs() {
 	libs := map[string]GoFunction{
-		"_G": stdlib.OpenBaseLib,
+		"_G":      stdlib.OpenBaseLib,
+		"math":    stdlib.OpenMathLib,
+		"table":   stdlib.OpenTableLib,
+		"string":  stdlib.OpenStringLib,
+		"utf8":    stdlib.OpenUTF8Lib,
+		"os":      stdlib.OpenOSLib,
+		"package": stdlib.OpenPackageLib,
 	}
 
 	for name, fun := range libs {
@@ -183,7 +189,7 @@ func (self *luaState) OpenLibs() {
 }
 
 func (self *luaState) RequireF(modname string, openf GoFunction, glb bool) {
-	self.GetSubTable(LUA_REGISTERYINDEX, "_LOADED")
+	self.GetSubTable(LUA_REGISTRYINDEX, "_LOADED")
 	self.GetField(-1, modname)
 	if !self.ToBoolean(-1) {
 		self.Pop(1)

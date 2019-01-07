@@ -96,5 +96,5 @@ type BasicAPI interface {
 }
 
 func LuaUpvalueIndex(i int) int {
-	return LUA_REGISTERYINDEX - i
+	return LUA_REGISTRYINDEX - i
 }
