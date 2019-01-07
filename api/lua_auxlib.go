@@ -15,7 +15,8 @@ type AuxLib interface {
 	CheckNumber(arg int) float64
 	CheckString(arg int) string
 	OptInteger(arg int, d int64) int64
-	OptNumber(arg int, d string) string
+	OptNumber(arg int, d float64) float64
+	OptString(arg int, d string) string
 	// Load functions
 	DoFile(filename string) bool
 	DoString(str string) bool
@@ -33,5 +34,5 @@ type AuxLib interface {
 	RequireF(modname string, openf GoFunction, glb bool)
 	NewLib(l FuncReg)
 	NewLibTable(l FuncReg)
-	SetFunc(l FuncReg, nup int)
+	SetFuncs(l FuncReg, nup int)
 }

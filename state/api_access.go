@@ -138,3 +138,8 @@ func (self *luaState) ToGoFunction(idx int) GoFunction {
 	}
 	return nil
 }
+
+func (self *luaState) ToPointer(idx int) interface{} {
+	// todo
+	return self.stack.get(idx)
+}

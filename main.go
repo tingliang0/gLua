@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	. "gLua/api"
@@ -341,25 +340,9 @@ func testParser(chunk, chunkName string) {
 
 func main() {
 	if len(os.Args) > 1 {
-		data, err := ioutil.ReadFile(os.Args[1])
-		if err != nil {
-			panic(err)
-		}
-		// testVM(data)
-		// testLexer(string(data), os.Args[1])
-		// testParser(string(data), os.Args[1])
-
 		ls := state.New()
-		ls.Register("print", print)
-		ls.Register("getmetatable", getMetatable)
-		ls.Register("setmetatable", setMetatable)
-		ls.Register("next", next)
-		ls.Register("pairs", pairs)
-		ls.Register("ipairs", iPairs)
-		ls.Register("error", error)
-		ls.Register("pcall", pCall)
-		ls.Load(data, os.Args[1], "bt")
+		ls.OpenLibs()
+		ls.LoadFile(os.Args[1])
 		ls.Call(0, 0)
-
 	}
 }

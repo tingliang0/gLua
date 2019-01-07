@@ -41,6 +41,7 @@ type BasicAPI interface {
 	ToNumberX(idx int) (float64, bool)
 	ToString(idx int) string
 	ToStringX(idx int) (string, bool)
+	ToPointer(idx int) interface{}
 	// push functions (Go -> stack)
 	PushNil()
 	PushBoolean(b bool)
@@ -90,6 +91,7 @@ type BasicAPI interface {
 	Error() int
 	PCall(nArgs, nResults, msgh int) int
 	PushFString(fmtStr string, a ...interface{})
+	StringToNumber(s string) bool
 }
 
 func LuaUpvalueIndex(i int) int {

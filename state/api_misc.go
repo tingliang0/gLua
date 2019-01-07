@@ -1,5 +1,7 @@
 package state
 
+import "gLua/number"
+
 func (self *luaState) Len(idx int) {
 	val := self.stack.get(idx)
 	if s, ok := val.(string); ok {
@@ -69,4 +71,16 @@ func (self *luaState) Next(idx int) bool {
 func (self *luaState) Error() int {
 	err := self.stack.pop()
 	panic(err)
+}
+
+func (self *luaState) StringToNumber(s string) bool {
+	if n, ok := number.ParseInteger(s); ok {
+		self.PushInteger(n)
+		return true
+	}
+	if n, ok := number.ParseFloat(s); ok {
+		self.PushNumber(n)
+		return true
+	}
+	return false
 }
