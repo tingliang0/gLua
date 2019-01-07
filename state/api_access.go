@@ -143,3 +143,7 @@ func (self *luaState) ToPointer(idx int) interface{} {
 	// todo
 	return self.stack.get(idx)
 }
+
+func (self *luaState) IsFunction(idx int) bool {
+	return self.Type(idx) == LUA_TFUNCTION
+}

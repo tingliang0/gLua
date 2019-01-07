@@ -44,6 +44,7 @@ const LUAI_MAXSTACK = 1000000
 const LUA_REGISTERYINDEX = -LUAI_MAXSTACK - 1000
 const LUA_RIDX_GLOBALS int64 = 2
 const LUA_MULTRET = -1
+const LUA_MAXINTEGER = 1<<63 - 1
 
 const (
 	LUA_OK = iota
