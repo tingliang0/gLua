@@ -22,18 +22,20 @@ type funcInfo struct {
 	isVararg  bool
 }
 
+type upvalInfo struct {
+	locVarSlot int
+	upvalIndex int
+	index      int
+}
+
 type locVarInfo struct {
 	prev     *locVarInfo
 	name     string
 	scopeLv  int
 	slot     int
+	startPC  int
+	endPC    int
 	captured bool
-}
-
-type upvalInfo struct {
-	locVarSlot int
-	upvalIndex int
-	index      int
 }
 
 var arithAndBitwiseBinops = map[int]int{

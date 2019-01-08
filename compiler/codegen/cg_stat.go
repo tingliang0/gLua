@@ -127,7 +127,7 @@ func cgForNumStat(fi *funcInfo, node *ForNumStat) {
 	cgBlock(fi, node.Block)
 	fi.closeOpenUpvals()
 	pcForLoop := fi.emitForLoop(a, 0)
-	fi.fixSbx(pcForPrep, pcForPrep-pcForPrep-1)
+	fi.fixSbx(pcForPrep, pcForLoop-pcForPrep-1)
 	fi.fixSbx(pcForLoop, pcForPrep-pcForLoop)
 	fi.exitScope()
 }
