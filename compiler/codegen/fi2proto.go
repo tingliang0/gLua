@@ -45,7 +45,7 @@ func getUpvalues(fi *funcInfo) []Upvalue {
 		if uv.locVarSlot >= 0 {
 			upvals[uv.index] = Upvalue{1, byte(uv.locVarSlot)}
 		} else {
-			upvals[uv.index] = Upvalue{0, byte(uv.locVarSlot)}
+			upvals[uv.index] = Upvalue{0, byte(uv.upvalIndex)}
 		}
 	}
 	return upvals
