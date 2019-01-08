@@ -47,3 +47,8 @@ func (self *luaState) PushFString(fmtStr string, a ...interface{}) {
 	str := fmt.Sprintf(fmtStr, a...)
 	self.stack.push(str)
 }
+
+func (self *luaState) PushThread() bool {
+	self.stack.push(self)
+	return self.isMainThread()
+}

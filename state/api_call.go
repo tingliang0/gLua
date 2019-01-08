@@ -123,3 +123,8 @@ func (self *luaState) PCall(nArgs, nResults, msgh int) (status int) {
 	status = LUA_OK
 	return
 }
+
+func (self *luaState) XMove(to LuaState, n int) {
+	vals := self.stack.popN(n)
+	to.(*luaState).stack.pushN(vals, n)
+}

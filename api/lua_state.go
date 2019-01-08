@@ -93,6 +93,16 @@ type BasicAPI interface {
 	PCall(nArgs, nResults, msgh int) int
 	PushFString(fmtStr string, a ...interface{})
 	StringToNumber(s string) bool
+	// coroutine
+	NewThread() LuaState
+	Resume(from LuaState, nArgs int) int
+	Yield(nResults int) int
+	Status() int
+	IsYieldable() bool
+	ToThread(idx int) LuaState
+	PushThread() bool
+	XMove(to LuaState, n int)
+	GetStack() bool // debug
 }
 
 func LuaUpvalueIndex(i int) int {

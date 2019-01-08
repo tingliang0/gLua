@@ -147,3 +147,13 @@ func (self *luaState) ToPointer(idx int) interface{} {
 func (self *luaState) IsFunction(idx int) bool {
 	return self.Type(idx) == LUA_TFUNCTION
 }
+
+func (self *luaState) ToThread(idx int) LuaState {
+	val := self.stack.get(idx)
+	if val != nil {
+		if ls, ok := val.(*luaState); ok {
+			return ls
+		}
+	}
+	return nil
+}
